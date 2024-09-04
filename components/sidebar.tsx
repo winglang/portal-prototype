@@ -8,14 +8,8 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {useEffect} from "react";
+import { apiGroups } from "./api-groups";
+import Link from "next/link"
 
 type MenuItem = {
   icon: React.ElementType
@@ -23,29 +17,6 @@ type MenuItem = {
   href?: string
   children?: MenuItem[]
 }
-
-const menuItems: MenuItem[] = [
-  { icon: Home, label: "Dashboard", href: "/" },
-  {
-    icon: Users,
-    label: "User Management",
-    children: [
-      { icon: Users, label: "All Users", href: "/users" },
-      { icon: Users, label: "Add User", href: "/users/add" },
-    ],
-  },
-  {
-    icon: FileText,
-    label: "Content",
-    children: [
-      { icon: FileText, label: "Articles", href: "/content/articles" },
-      { icon: FileText, label: "Pages", href: "/content/pages" },
-    ],
-  },
-  { icon: BarChart, label: "Analytics", href: "/analytics" },
-  { icon: Settings, label: "Settings", href: "/settings" },
-  { icon: HelpCircle, label: "Help", href: "/help" },
-]
 
 function MenuItem({ item, level = 0 }: { item: MenuItem; level?: number }) {
   const [isOpen, setIsOpen] = React.useState(false)
@@ -72,43 +43,74 @@ function MenuItem({ item, level = 0 }: { item: MenuItem; level?: number }) {
   }
 
   return (
-    <a
-      href={item.href}
+    <Link
+      href={item.href ?? "/"}
       className="flex items-center space-x-2 p-2 hover:bg-accent rounded-md"
     >
       <item.icon className="h-4 w-4" />
       <span>{item.label}</span>
-    </a>
+    </Link>
   )
 }
 
-export function Sidebar() {
-  const [namespaces, setNamespaces] = React.useState<string[]>(["default"])
-  const [selectedNamespace, setSelectedNamespace] = React.useState("default")
+/*
+const menuItems: MenuItem[] = [
+  { icon: Home, label: "Dashboard", href: "/" },
+  {
+    icon: Users,
+    label: "User Management",
+    children: [
+      { icon: Users, label: "All Users", href: "/users" },
+      { icon: Users, label: "Add User", href: "/users/add" },
+    ],
+  },
+  {
+    icon: FileText,
+    label: "Content",
+    children: [
+      { icon: FileText, label: "Articles", href: "/content/articles" },
+      { icon: FileText, label: "Pages", href: "/content/pages" },
+    ],
+  },
+  { icon: BarChart, label: "Analytics", href: "/analytics" },
+  { icon: Settings, label: "Settings", href: "/settings" },
+  { icon: HelpCircle, label: "Help", href: "/help" },
+]
+*/
 
-  useEffect(() => {
-    fetch("/api/namespaces").then(res => res.json()).then(data => {
-      setNamespaces(data.namespaces)
-    })
+export function Sidebar() {
+  const [menuItems, setMenuItems] = React.useState<MenuItem[]>([]);
+
+  React.useEffect(() => {
+    console.log("hello");
+    async function fetchAllResources() {
+      const result: MenuItem[] = [];
+      for (const group of apiGroups) {
+
+        const object =  await fetch(`/api/${group.group}`);
+        const json = await object.json();
+
+        result.push({
+          icon: group.icon,
+          label: group.plural,
+          children: json.items.map((item: any) => ({
+            icon: Users,
+            label: item.metadata.name,
+            href: `/${group.group}/${item.metadata.namespace ?? "default"}/${item.metadata.name}`,
+          })),
+        })
+
+      }
+
+      setMenuItems(result);
+    }
+
+    fetchAllResources();
   }, []);
 
   return (
     <div className="min-w-64 bg-background border-r border-border p-4">
       <h2 className="text-lg font-semibold mb-4">Admin Panel</h2>
-      <div className="mb-4">
-        <Select value={selectedNamespace} onValueChange={setSelectedNamespace}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select Namespace" />
-          </SelectTrigger>
-          <SelectContent>
-            {namespaces.map((namespace) => (
-              <SelectItem key={namespace} value={namespace}>
-                {namespace}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
       <nav>
         {menuItems.map((item, index) => (
           <MenuItem key={index} item={item} />
