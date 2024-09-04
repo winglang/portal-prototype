@@ -1,21 +1,28 @@
 'use client'
 
 import * as React from "react"
-import { ChevronDown, ChevronRight, Home, Settings, Users, FileText, BarChart, HelpCircle } from "lucide-react"
+import { ChevronDown, ChevronRight } from "lucide-react"
+import icons from "lucide-react/dynamicIconImports"
 import { cn } from "@/lib/utils"
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
-import { apiGroups } from "./api-groups";
+import apiGroups from "./api-groups.json";
 import Link from "next/link"
 
 type MenuItem = {
-  icon: React.ElementType
+  icon?: React.ElementType
   label: string
   href?: string
   children?: MenuItem[]
+}
+
+type ApiGroup = {
+  group: string
+  icon: string
+  plural: string
 }
 
 function MenuItem({ item, level = 0 }: { item: MenuItem; level?: number }) {
@@ -26,7 +33,7 @@ function MenuItem({ item, level = 0 }: { item: MenuItem; level?: number }) {
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-accent rounded-md">
           <div className="flex items-center space-x-2">
-            <item.icon className="h-4 w-4" />
+            {item.icon && <item.icon className="h-4 w-4" />}
             <span>{item.label}</span>
           </div>
           {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -47,7 +54,7 @@ function MenuItem({ item, level = 0 }: { item: MenuItem; level?: number }) {
       href={item.href ?? "/"}
       className="flex items-center space-x-2 p-2 hover:bg-accent rounded-md"
     >
-      <item.icon className="h-4 w-4" />
+      {item.icon && <item.icon className="h-4 w-4" />}
       <span>{item.label}</span>
     </Link>
   )
@@ -85,18 +92,19 @@ export function Sidebar() {
     console.log("hello");
     async function fetchAllResources() {
       const result: MenuItem[] = [];
-      for (const group of apiGroups) {
+      for (const api of apiGroups as ApiGroup[]) {
 
-        const object =  await fetch(`/api/${group.group}`);
+        const object =  await fetch(`/api/${api.group}/${api.plural}`);
         const json = await object.json();
 
+        const Icon = React.lazy(icons[api.icon as keyof typeof icons]);
+
         result.push({
-          icon: group.icon,
-          label: group.plural,
+          icon: Icon,
+          label: api.plural,
           children: json.items.map((item: any) => ({
-            icon: Users,
             label: item.metadata.name,
-            href: `/${group.group}/${item.metadata.namespace ?? "default"}/${item.metadata.name}`,
+            href: `/${api.group}/${api.plural}/${item.metadata.namespace ?? "default"}/${item.metadata.name}`,
           })),
         })
 

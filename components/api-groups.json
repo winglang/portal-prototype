@@ -1,0 +1,27 @@
+[
+  {
+    "group": "acme.com/v1",
+    "plural": "queues",
+    "icon": "list"
+  },
+  {
+    "group": "acme.com/v1",
+    "plural": "repositories",
+    "icon": "github"
+  },
+  {
+    "group": "acme.com/v1",
+    "plural": "services",
+    "icon": "network"
+  },
+  {
+    "group": "acme.com/v1",
+    "plural": "topics",
+    "icon": "library"
+  },
+  {
+    "group": "acme.com/v1",
+    "plural": "workloads",
+    "icon": "briefcase"
+  }
+]

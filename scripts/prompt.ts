@@ -1,13 +1,8 @@
-import k8s from '@kubernetes/client-node';
-import {mkdirSync, readFileSync, writeFileSync} from 'fs';
-import { OpenAI } from 'openai';
-import { join, resolve, dirname } from 'path';
-import { listAvailableComponents } from "./all-components.mjs";
+import { readFileSync } from "fs";
+import { listAvailableComponents } from "./all-components";
+import { join } from "path";
 
-
-const __dirname = resolve(dirname(''));
-
-const prompt = `
+export const prompt = `
 I have a JSON schema that displays the contents of a Kubernetes object.
 I would like to auto generate a Next.js React UI component in Typescript that uses "shadcn/ui" and "tailwindcss".
 The component should include all the  fields from the object and use the most human friendly ui elements
@@ -30,6 +25,14 @@ Some guidelines for the UI component:
 - make sure the component is fully functional and can be directly integrated into a Next.js app. No typescript errors. No React errors.
 - Run some tests on the created component to make sure it works as expected and all elements are displayed and functions as expected. 
 
+- This is a template of how a resource object component should look like.
+- The number of properties and the name of the properties can change from one resource object to another.
+- The number of nested sections and the name of the properties can change from one resource object to another.
+- Do not display non exists properties and sections. If the array is empty or the property doesn't exist - do not add the section
+- Check if the property exists before displaying it and if a nested object has values before displaying it and its' properties
+- If you won't follow these instructions, the website will crash
+- Make sure to "null-check" every value before displaying it.
+
 Here is the list of allowed "shadcn/ui" imports:
 
 ${listAvailableComponents()}
@@ -40,56 +43,25 @@ Write the following TypeScript code, but ensure that it is plain text with no ma
 
 Below you will find the JSON schema that represents the Kubernetes object as well as the CRD definition.
 
-Also, below you will find a React component template that you need to follow when creating the component. Make sure to follow all comments writen in the code.
+Here is the template of the React component:
+
+${readFileSync(join(__dirname, 'template.tsx'), 'utf-8')}
+
+OUTPUT FORMAT MUST BE a plain .tsx file, no markdown, no code blocks, no comments, no additional text.
 `;
 
-async function renderResourceUi(resourceType: string) {
-  const kc = new k8s.KubeConfig();
-  kc.loadFromDefault();
-  const k8sApi = kc.makeApiClient(k8s.CustomObjectsApi);
-  const resource = await k8sApi.getClusterCustomObject('apiextensions.k8s.io', 'v1', 'customresourcedefinitions', resourceType);
+// export const prompt = `
+// Generate TypeScript code for a Next.js React UI component that displays a Kubernetes object based on the provided JSON schema.
+// The component should be written in a way that it can be directly integrated into a Next.js app.
 
-  const crd: k8s.V1CustomResourceDefinition = resource.body as k8s.V1CustomResourceDefinition;
+// Here is the finite list of allowed "shadcn/ui" imports:
+// --BEGIN--
+// ${listAvailableComponents()}
+// --END--
 
-  const o = new OpenAI();
+// Here is a template for the output:
 
-  console.log("Working...");
-  const response = await o.chat.completions.create({
-    model: "gpt-4o",
-    max_tokens: 4096,
-    messages: [
-      {
-        role: 'system',
-        content: prompt,
-      },
-      {
-        role: 'user',
-        content: `CRD: ${JSON.stringify(crd, null, 2)}`,
-      },
-      {
-        role: 'user',
-        content: `Schema: ${JSON.stringify(crd.spec.versions[0].schema)}`,
-      },
-      {
-          role: 'user',
-          content: `Template React Component with comments that you need to follow: ${readFileSync(join(__dirname, '/scripts/template.tsx'), 'utf-8')}`,
-      },
-    ]
-  });
-
-  const code = response.choices[0].message.content!;
-  const group = crd.spec.group;
-  const version = crd.spec.versions[0].name;
-  const plural = crd.spec.names.plural;
-  const outputdir = `components/views/${group}/${version}`;
-
-  mkdirSync(outputdir, { recursive: true });
-  writeFileSync(join(outputdir, `${plural}.tsx`), code);
-}
-
-if (!process.argv[2]) {
-  console.error('Usage: ts-node discover.mts <resourceType>');
-  process.exit(1);
-}
-
-renderResourceUi(process.argv[2]).catch(console.error);
+// export default function View({ obj }: { obj: any }) {
+//   <generated code here>
+// }
+// `;
