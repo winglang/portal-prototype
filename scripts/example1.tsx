@@ -9,47 +9,13 @@ const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString()
 }
 
-interface Condition {
-    type: string
-    status: string
-    lastProbeTime?: string
-    lastTransitionTime: string
-    message: string
-}
-
-interface Status {
-    conditions?: Condition[]
-    host?: string
-    port?: string
-}
-
-interface Metadata {
-    name: string
-    namespace: string
-    resourceVersion: string
-    uid: string
-    creationTimestamp: string
-    labels: Record<string, string>
-}
-
-interface WorkloadObject {
-    apiVersion: string
-    kind: string
-    metadata: Metadata
-    image: string
-    route: string
-    replicas: number
-    env: Record<string, string>
-    status: Status
-}
-
 const BalancedBadge = ({ children, color }: { children: React.ReactNode, color: string }) => (
     <span className={`px-2 py-1 rounded-full ${color} text-xs font-semibold`}>
     {children}
   </span>
 )
 
-export default function WorkloadViewer({ obj }: { obj: WorkloadObject }) {
+export default function BalancedWorkloadViewer({obj}) {
     const [showMetadata, setShowMetadata] = useState(false)
     const [showEnv, setShowEnv] = useState(false)
     const [showStatus, setShowStatus] = useState(false)
@@ -80,6 +46,7 @@ export default function WorkloadViewer({ obj }: { obj: WorkloadObject }) {
                                         <p>The version of the API used by this workload</p>
                                     </TooltipContent>
                                 </Tooltip>
+
                                 <Tooltip>
                                     <TooltipTrigger>
                                         <div className="flex items-center gap-2 bg-gray-100 p-3 rounded-lg">
@@ -92,6 +59,7 @@ export default function WorkloadViewer({ obj }: { obj: WorkloadObject }) {
                                         <p>The Docker image used for this workload</p>
                                     </TooltipContent>
                                 </Tooltip>
+
                                 <Tooltip>
                                     <TooltipTrigger>
                                         <div className="flex items-center gap-2 bg-gray-100 p-3 rounded-lg">
@@ -104,6 +72,7 @@ export default function WorkloadViewer({ obj }: { obj: WorkloadObject }) {
                                         <p>The URL path for accessing this workload</p>
                                     </TooltipContent>
                                 </Tooltip>
+
                                 <Tooltip>
                                     <TooltipTrigger>
                                         <div className="flex items-center gap-2 bg-gray-100 p-3 rounded-lg">
@@ -117,6 +86,7 @@ export default function WorkloadViewer({ obj }: { obj: WorkloadObject }) {
                                     </TooltipContent>
                                 </Tooltip>
                             </div>
+
                             <div className="space-y-4">
                                 <Button
                                     variant="outline"
@@ -142,6 +112,7 @@ export default function WorkloadViewer({ obj }: { obj: WorkloadObject }) {
                                         </div>
                                     </div>
                                 )}
+
                                 <Button
                                     variant="outline"
                                     className="w-full justify-between"
@@ -162,6 +133,7 @@ export default function WorkloadViewer({ obj }: { obj: WorkloadObject }) {
                                         ))}
                                     </div>
                                 )}
+
                                 <Button
                                     variant="outline"
                                     className="w-full justify-between"
@@ -174,7 +146,7 @@ export default function WorkloadViewer({ obj }: { obj: WorkloadObject }) {
                                     <div className="pl-6 space-y-2 animate-fadeIn">
                                         <div>Host: <BalancedBadge color="bg-cyan-100 text-cyan-800">{obj.status.host}</BalancedBadge></div>
                                         <div>Port: <BalancedBadge color="bg-pink-100 text-pink-800">{obj.status.port}</BalancedBadge></div>
-                                        {obj.status.conditions?.map((condition, index) => (
+                                        {obj.status.conditions.map((condition, index) => (
                                             <div key={index} className="bg-gray-100 p-4 rounded-lg">
                                                 <div className="font-semibold text-gray-800">Type: {condition.type}</div>
                                                 <div>Status:
@@ -183,7 +155,7 @@ export default function WorkloadViewer({ obj }: { obj: WorkloadObject }) {
                                                     </Badge>
                                                 </div>
                                                 <div className="text-gray-700">Message: {condition.message}</div>
-                                                <div className="text-xs text-gray-600">Last Probe: {condition.lastProbeTime ? formatDate(condition.lastProbeTime) : 'N/A'}</div>
+                                                <div className="text-xs text-gray-600">Last Probe: {formatDate(condition.lastProbeTime)}</div>
                                                 <div className="text-xs text-gray-600">Last Transition: {formatDate(condition.lastTransitionTime)}</div>
                                             </div>
                                         ))}

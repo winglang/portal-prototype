@@ -1,36 +1,46 @@
 import k8s from '@kubernetes/client-node';
-import { mkdirSync, writeFileSync } from 'fs';
+import {mkdirSync, readFileSync, writeFileSync} from 'fs';
 import { OpenAI } from 'openai';
-import { join } from 'path';
+import { join, resolve, dirname } from 'path';
 import { listAvailableComponents } from "./all-components.mjs";
 
 
+const __dirname = resolve(dirname(''));
+
 const prompt = `
-I have a JSON schema that displays the contents of a Kubernetes object, 
-and I would like to generate a Next.js React component in Typescript that uses "shadcn/ui".
+I have a JSON schema that displays the contents of a Kubernetes object.
+I would like to auto generate a Next.js React UI component in Typescript that uses "shadcn/ui" and "tailwindcss".
 The component should include all the  fields from the object and use the most human friendly ui elements
-to represent the value. For example: use a progress bar to represent percentage, use icons with colors to represent status
-and generally just create a beautiful and colorful and rich ui for this object.
+to represent the object values.
+For example: 
+In case one of the values is precentage, use a progress bar for representation, 
+use with colors to represent the resource status,
+and in general create a beautiful and rich ui for this object.
 
-The component should include the kind of the object as a title, as well as any descriptions and details from the schema that make the interface more human friendly and readable.
-Use emojis as much as possible to make the interface more human friendly and readable.
-
-The generated component should:
-
-0. The component API should be a single object with a single property called "obj" that includes the api object contents based on the schema provided below.
-1. Import and use components from "@/components/ui/<component>.tsx", DO NOT, and I repeat, DO NOT improt "from '@/components/ui'"
-2. Include TypeScript interfaces for type safety based on the JSON schema.
-3. Be styled using "shadcn/ui" and follow best practices for responsive design.
+Some guidelines for the UI component:
+- The component should fill the parent component height and width.
+- Include the kind of the object as a title, as well as any descriptions.
+- Display all the details from the schema and make sure the user interface is human friendly and readable as possible.
+- Use collapbsible sections for displaying the object fields in a structured way.
+- Use emojis when needed to make the interface more human friendly and readable.
+- The component API should be a single object with a single property called "obj" that includes the api object contents based on the schema provided below.
+- Only import UI components from "@/components/ui/<component>.tsx", DO NOT, and I repeat, DO NOT improt "from '@/components/ui'" directly.
+- Include TypeScript interfaces for type safety based on the JSON schema.
+- Use "shadcn/ui" and "tailwindcss" and follow best practices for responsive design.
+- make sure the component is fully functional and can be directly integrated into a Next.js app. No typescript errors. No React errors.
+- Run some tests on the created component to make sure it works as expected and all elements are displayed and functions as expected. 
 
 Here is the list of allowed "shadcn/ui" imports:
 
 ${listAvailableComponents()}
 
-Please provide a fully functional "shadcn/ui" component code that I can directly integrate into a Next.js app.
+Please provide a fully functional "shadcn/ui" and "tailwindcss" component code that I can directly integrate into a Next.js app.
 
 Write the following TypeScript code, but ensure that it is plain text with no markdown or formatting characters. Provide the following TypeScript code in plain text, without any markdown formatting or code block syntax.
 
 Below you will find the JSON schema that represents the Kubernetes object as well as the CRD definition.
+
+Also, below you will find a React component template that you need to follow when creating the component. Make sure to follow all comments writen in the code.
 `;
 
 async function renderResourceUi(resourceType: string) {
@@ -59,7 +69,11 @@ async function renderResourceUi(resourceType: string) {
       {
         role: 'user',
         content: `Schema: ${JSON.stringify(crd.spec.versions[0].schema)}`,
-      }
+      },
+      {
+          role: 'user',
+          content: `Template React Component with comments that you need to follow: ${readFileSync(join(__dirname, '/scripts/template.tsx'), 'utf-8')}`,
+      },
     ]
   });
 
