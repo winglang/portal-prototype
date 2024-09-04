@@ -7,7 +7,7 @@
   {
     "group": "acme.com/v1",
     "plural": "repositories",
-    "icon": "github"
+    "icon": "book-open"
   },
   {
     "group": "acme.com/v1",
@@ -22,6 +22,6 @@
   {
     "group": "acme.com/v1",
     "plural": "workloads",
-    "icon": "briefcase"
+    "icon": "folder"
   }
 ]

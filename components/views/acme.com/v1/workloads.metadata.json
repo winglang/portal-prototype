@@ -1,5 +1,5 @@
 {
   "group": "acme.com/v1",
   "plural": "workloads",
-  "icon": "briefcase"
+  "icon": "folder"
 }
