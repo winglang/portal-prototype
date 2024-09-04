@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {useEffect} from "react";
 
 type MenuItem = {
   icon: React.ElementType
@@ -85,14 +86,14 @@ export function Sidebar() {
   const [namespaces, setNamespaces] = React.useState<string[]>(["default"])
   const [selectedNamespace, setSelectedNamespace] = React.useState("default")
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetch("/api/namespaces").then(res => res.json()).then(data => {
       setNamespaces(data.namespaces)
     })
-  }, [])
+  }, []);
 
   return (
-    <div className="w-64 bg-background border-r border-border p-4">
+    <div className="min-w-64 bg-background border-r border-border p-4">
       <h2 className="text-lg font-semibold mb-4">Admin Panel</h2>
       <div className="mb-4">
         <Select value={selectedNamespace} onValueChange={setSelectedNamespace}>

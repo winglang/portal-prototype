@@ -11,7 +11,6 @@ export default function Page({ params }: { params: Params }) {
   const [obj, setObj] = useState<any | null>(null);
   useEffect(() => {
     fetch(`/api/${pathname}`).then(res => res.json()).then(data => {
-      console.log(data);
       setObj(data);
     });
   }, [pathname]);

@@ -24,7 +24,7 @@ export default function RootLayout({
           <Header />
           <div style={{ display: 'flex', flexGrow: 1, overflow: 'hidden' }}>
             <Sidebar />
-            <main style={{ padding: '20px' }}>
+            <main className={"w-full h-full"} style={{ padding: '20px' }}>
               {children}
             </main>
           </div>

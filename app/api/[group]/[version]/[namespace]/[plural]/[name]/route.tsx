@@ -7,7 +7,6 @@ export async function GET(req: Request, { params }: { params: Params }): Promise
   const kc = new k8s.KubeConfig();
   kc.loadFromDefault();
 
-
   const k8sApi = kc.makeApiClient(k8s.CustomObjectsApi);
 
   try {
