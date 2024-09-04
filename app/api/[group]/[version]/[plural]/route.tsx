@@ -16,11 +16,9 @@ export async function GET(req: Request, { params }: { params: Params }): Promise
  
   if (params.group === "core") {
     url.push("api");
-    
   } else {
     url.push("apis");
-    url.push(params.group);
-    
+    url.push(params.group); 
   }
 
   url.push(params.version);
