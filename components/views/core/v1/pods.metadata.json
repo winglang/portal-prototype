@@ -2,5 +2,7 @@
   "group": "core",
   "plural": "pods",
   "version": "v1",
-  "icon": "box"
+  "icon": "Box",
+  "description": "This is a React component to view Kubernetes Pod objects with a user-friendly and rich UI. The component shows metadata, specifications, and status of the POD.",
+  "kind": "Pod"
 }

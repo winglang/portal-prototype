@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from "react"
-import { Bell, ChevronDown, LogOut, Search, Settings, User } from "lucide-react"
+import { Bell, LogOut, Search, Settings, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {

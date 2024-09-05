@@ -1,8 +1,6 @@
 'use client'
-
-
 import * as React from "react"
-import { ChevronDown, ChevronRight, Loader } from "lucide-react"
+import { Box, ChevronDown, ChevronRight, Loader } from "lucide-react"
 import icons from "lucide-react/dynamicIconImports"
 import { cn } from "@/lib/utils"
 import {
@@ -13,6 +11,8 @@ import {
 import apiGroups from "./api-groups.json";
 import Link from "next/link"
 import { useK8s } from "@/hooks/use-k8s"
+import { ApiGroup } from "@/app/types"
+import { usePathname } from "next/navigation"
 
 type MenuItem = {
   icon?: React.ElementType
@@ -22,20 +22,14 @@ type MenuItem = {
   children?: MenuItem[]
 }
 
-type ApiGroup = {
-  group: string
-  version: string
-  icon: string
-  plural: string
-}
-
 function MenuItem({ item, level = 0 }: { item: MenuItem; level?: number }) {
   const [isOpen, setIsOpen] = React.useState(false)
+  const pathname = usePathname();
 
   if (item.children?.length) {
     return (
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-accent rounded-md">
+        <CollapsibleTrigger className="flex w-full items-center justify-between p-1 hover:bg-accent- rounded-md">
           <div className="flex items-center space-x-2">
             {item.icon && <item.icon className="h-4 w-4" />}
             <span>{item.label}</span>
@@ -43,7 +37,7 @@ function MenuItem({ item, level = 0 }: { item: MenuItem; level?: number }) {
           {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <div className={cn("pl-4", level === 0 ? "border-l border-border ml-2 mt-2" : "")}>
+          <div className={cn("pl-4", level === 0 ? "border-l border-border ml-2 mt-1" : "")}>
             {item.children.map((child, index) => (
               <MenuItem key={index} item={child} level={level + 1} />
             ))}
@@ -56,49 +50,27 @@ function MenuItem({ item, level = 0 }: { item: MenuItem; level?: number }) {
   return (
     <Link
       href={item.href ?? "/"}
-      className="flex items-center space-x-1 p-2 hover:bg-accent rounded-md"
+      className={cn("flex items-center p-1 hover:bg-accent rounded-md", pathname === item.href ? "bg-accent" : "")}
     >
-      <div className="flex justify-between w-full">
-        <div className="flex items-center space-x-2">
-          {item.icon && <item.icon className="h-4 w-4" />}
-          <span>{item.label}</span>
-        </div>
-        {item.loading && <Loader className="h-4 w-4 animate-spin" />}
+      <div className="flex items-center w-full">
+        {item.icon && <item.icon className="h-4 w-4 flex-shrink-0 mr-2" />}
+        <span className="flex-grow truncate">{item.label}</span>
+        {item.loading && <Loader className="h-4 w-4 animate-spin flex-shrink-0 ml-2" />}
       </div>
     </Link>
   )
 }
 
-/*
-const menuItems: MenuItem[] = [
-  { icon: Home, label: "Dashboard", href: "/" },
-  {
-    icon: Users,
-    label: "User Management",
-    children: [
-      { icon: Users, label: "All Users", href: "/users" },
-      { icon: Users, label: "Add User", href: "/users/add" },
-    ],
-  },
-  {
-    icon: FileText,
-    label: "Content",
-    children: [
-      { icon: FileText, label: "Articles", href: "/content/articles" },
-      { icon: FileText, label: "Pages", href: "/content/pages" },
-    ],
-  },
-  { icon: BarChart, label: "Analytics", href: "/analytics" },
-  { icon: Settings, label: "Settings", href: "/settings" },
-  { icon: HelpCircle, label: "Help", href: "/help" },
-]
-*/
-
 function SidebarSection({ api }: { api: ApiGroup }) {
-  const [Icon, setIcon] = React.useState<React.ElementType | undefined>(undefined);
+  const [Icon, setIcon] = React.useState<React.ElementType>(Box);
   const { map, error, isLoading } = useK8s(api);
 
-  React.useEffect(() => setIcon(React.lazy(icons[api.icon as keyof typeof icons])), [api]);
+  React.useEffect(() => {
+    const i = icons[api.icon as keyof typeof icons];
+    if (i) {
+      setIcon(React.lazy(i))
+    }
+  }, [api.icon]);
 
   if (error) {
     return <div>Error: {error.message}</div>
@@ -119,8 +91,7 @@ function SidebarSection({ api }: { api: ApiGroup }) {
 
 export function Sidebar() {
   return (
-    <div className="min-w-64 bg-background border-r border-border p-4">
-      <h2 className="text-lg font-semibold mb-4">Admin Panel</h2>
+    <div className="w-64 flex-shrink-0 bg-background border-r border-border p-4 overflow-y-auto">
       <nav>
         {apiGroups.map((api, index) => (
           <SidebarSection key={index} api={api} />

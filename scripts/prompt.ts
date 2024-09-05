@@ -47,21 +47,7 @@ Here is the template of the React component:
 
 ${readFileSync(join(__dirname, 'template.tsx'), 'utf-8')}
 
-OUTPUT FORMAT MUST BE a plain .tsx file, no markdown, no code blocks, no comments, no additional text.
+Output format is a JSON object based on this TypeScript type definition:
+
+${readFileSync(join(__dirname, 'prompt-types.ts'), 'utf-8')}
 `;
-
-// export const prompt = `
-// Generate TypeScript code for a Next.js React UI component that displays a Kubernetes object based on the provided JSON schema.
-// The component should be written in a way that it can be directly integrated into a Next.js app.
-
-// Here is the finite list of allowed "shadcn/ui" imports:
-// --BEGIN--
-// ${listAvailableComponents()}
-// --END--
-
-// Here is a template for the output:
-
-// export default function View({ obj }: { obj: any }) {
-//   <generated code here>
-// }
-// `;

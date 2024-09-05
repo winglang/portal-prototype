@@ -5,3 +5,10 @@ export interface Params {
   namespace: string;
   name: string;
 }
+
+export type ApiGroup = {
+  group: string
+  version: string
+  icon: string
+  plural: string
+}
