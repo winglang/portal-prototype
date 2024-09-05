@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 export default function Page({ params }: { params: Params }) {
   const [View, setView] = useState<any | null>(null);
 
-  const { data, error, isLoading } = useK8s({ group: params.group, version: params.version, plural: params.plural });
+  const { map, error, isLoading } = useK8s({ group: params.group, version: params.version, plural: params.plural });
 
   useEffect(() => {
     import(`@/components/views/${params.group}/${params.version}/${params.plural}.tsx`).then(module => {
@@ -23,7 +23,7 @@ export default function Page({ params }: { params: Params }) {
     return <div>Loading...</div>
   }
 
-  const obj = data?.items?.find((item: any) => item.metadata.name === params.name && item.metadata.namespace === params.namespace);
+  const obj = map[`${params.namespace}/${params.name}`];
   if (!obj) {
     return <div>Not found</div>
   }

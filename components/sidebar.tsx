@@ -96,7 +96,7 @@ const menuItems: MenuItem[] = [
 
 function SidebarSection({ api }: { api: ApiGroup }) {
   const [Icon, setIcon] = React.useState<React.ElementType | undefined>(undefined);
-  const { data, error, isLoading } = useK8s(api);
+  const { map, error, isLoading } = useK8s(api);
 
   React.useEffect(() => setIcon(React.lazy(icons[api.icon as keyof typeof icons])), [api]);
 
@@ -108,7 +108,7 @@ function SidebarSection({ api }: { api: ApiGroup }) {
     return <MenuItem item={{ label: api.plural, loading: true }} />
   }
 
-  const children: MenuItem[] = data?.items.map((item: any) => ({
+  const children: MenuItem[] = Object.values(map ?? {}).map((item: any) => ({
     icon: Icon,
     label: item.metadata.name,
     href: `/${api.group}/${api.version}/${api.plural}/${item.metadata.namespace ?? "default"}/${item.metadata.name}`,
