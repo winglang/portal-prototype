@@ -9,7 +9,9 @@
     "group": "core",
     "plural": "secrets",
     "version": "v1",
-    "icon": "key"
+    "icon": "Lock",
+    "description": "A component to visualize Kubernetes Secret objects, displaying metadata and sensitive data in an organized and human-friendly manner.",
+    "kind": "Secret"
   },
   {
     "group": "core",
@@ -26,6 +28,12 @@
     "icon": "Box",
     "description": "ConfigMap holds configuration data for pods to consume. This component visualizes the details of a ConfigMap object, including metadata, data, and binary data.",
     "kind": "ConfigMap"
+  },
+  {
+    "group": "apps",
+    "plural": "deployments",
+    "version": "v1",
+    "icon": "box"
   },
   {
     "group": "acme.com",
@@ -50,11 +58,5 @@
     "plural": "repositories",
     "version": "v1",
     "icon": "file-box"
-  },
-  {
-    "group": "apps",
-    "plural": "deployments",
-    "version": "v1",
-    "icon": "box"
   }
 ]

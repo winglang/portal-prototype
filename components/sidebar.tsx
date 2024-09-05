@@ -13,6 +13,7 @@ import Link from "next/link"
 import { useK8s } from "@/hooks/use-k8s"
 import { ApiGroup } from "@/app/types"
 import { usePathname } from "next/navigation"
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "./ui/resizable"
 
 type MenuItem = {
   icon?: React.ElementType
@@ -29,7 +30,7 @@ function MenuItem({ item, level = 0 }: { item: MenuItem; level?: number }) {
   if (item.children?.length) {
     return (
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <CollapsibleTrigger className="flex w-full items-center justify-between p-1 hover:bg-accent- rounded-md">
+        <CollapsibleTrigger className="flex w-full items-center justify-between p-1 hover:bg-accent rounded-md">
           <div className="flex items-center space-x-2">
             {item.icon && <item.icon className="h-4 w-4" />}
             <span>{item.label}</span>
@@ -77,7 +78,7 @@ function SidebarSection({ api }: { api: ApiGroup }) {
   }
 
   if (isLoading) {
-    return <MenuItem item={{ label: api.plural, loading: true }} />
+    return <MenuItem item={{ label: api.plural, icon: Icon, loading: true }} />
   }
 
   const children: MenuItem[] = Object.values(map ?? {}).map((item: any) => ({
@@ -91,12 +92,10 @@ function SidebarSection({ api }: { api: ApiGroup }) {
 
 export function Sidebar() {
   return (
-    <div className="w-64 flex-shrink-0 bg-background border-r border-border p-4 overflow-y-auto">
-      <nav>
-        {apiGroups.map((api, index) => (
-          <SidebarSection key={index} api={api} />
-        ))}
-      </nav>
-    </div>
+    <nav>
+      {apiGroups.map((api, index) => (
+        <SidebarSection key={index} api={api} />
+      ))}
+    </nav>
   )
 }
