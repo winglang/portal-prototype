@@ -18,7 +18,7 @@
     "plural": "pods",
     "version": "v1",
     "icon": "Box",
-    "description": "This is a React component to view Kubernetes Pod objects with a user-friendly and rich UI. The component shows metadata, specifications, and status of the POD.",
+    "description": "A Kubernetes resource object shown in a card, containing metadata, specifications, and status information with visual indicators for readability.",
     "kind": "Pod"
   },
   {
@@ -28,12 +28,6 @@
     "icon": "Box",
     "description": "ConfigMap holds configuration data for pods to consume. This component visualizes the details of a ConfigMap object, including metadata, data, and binary data.",
     "kind": "ConfigMap"
-  },
-  {
-    "group": "apps",
-    "plural": "deployments",
-    "version": "v1",
-    "icon": "box"
   },
   {
     "group": "acme.com",
@@ -58,5 +52,11 @@
     "plural": "repositories",
     "version": "v1",
     "icon": "file-box"
+  },
+  {
+    "group": "apps",
+    "plural": "deployments",
+    "version": "v1",
+    "icon": "box"
   }
 ]
