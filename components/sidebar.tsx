@@ -1,6 +1,6 @@
 'use client'
 import * as React from "react"
-import { Box, ChevronDown, ChevronRight, Loader } from "lucide-react"
+import { AlertTriangle, Box, ChevronDown, ChevronRight, Loader } from "lucide-react"
 import icons from "lucide-react/dynamicIconImports"
 import { cn } from "@/lib/utils"
 import {
@@ -13,21 +13,55 @@ import Link from "next/link"
 import { useK8s } from "@/hooks/use-k8s"
 import { ApiGroup } from "@/app/types"
 import { usePathname } from "next/navigation"
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "./ui/resizable"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 type MenuItem = {
   icon?: React.ElementType
   label: string
   loading?: boolean
   href?: string
+  isLoading?: boolean
   children?: MenuItem[]
+  error?: Error
+}
+
+function Indicator({ isOpen, item }: { isOpen: boolean, item: MenuItem }) {
+  if (item.error) {
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger>
+            <AlertTriangle className="h-4 w-4 text-red-500" />
+          </TooltipTrigger>
+          <TooltipContent>
+            {item.error.message}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    )
+  }
+
+  if (!isOpen) {
+    return <ChevronRight className="h-4 w-4" />
+  }
+
+  if (item.isLoading) {
+    return <Loader className="h-4 w-4 animate-spin" />
+  }
+
+  return <ChevronDown className="h-4 w-4" />
 }
 
 function MenuItem({ item, level = 0 }: { item: MenuItem; level?: number }) {
   const [isOpen, setIsOpen] = React.useState(false)
   const pathname = usePathname();
 
-  if (item.children?.length) {
+  if (item.children) {
     return (
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CollapsibleTrigger className="flex w-full items-center justify-between p-1 hover:bg-accent rounded-md">
@@ -35,15 +69,15 @@ function MenuItem({ item, level = 0 }: { item: MenuItem; level?: number }) {
             {item.icon && <item.icon className="h-4 w-4" />}
             <span>{item.label}</span>
           </div>
-          {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+          <Indicator isOpen={isOpen} item={item} />
         </CollapsibleTrigger>
-        <CollapsibleContent>
+        {item.children.length ? <CollapsibleContent>
           <div className={cn("pl-4", level === 0 ? "border-l border-border ml-2 mt-1" : "")}>
             {item.children.map((child, index) => (
               <MenuItem key={index} item={child} level={level + 1} />
             ))}
           </div>
-        </CollapsibleContent>
+        </CollapsibleContent> : <></>}
       </Collapsible>
     )
   }
@@ -73,21 +107,13 @@ function SidebarSection({ api }: { api: ApiGroup }) {
     }
   }, [api.icon]);
 
-  if (error) {
-    return <div>Error: {error.message}</div>
-  }
-
-  if (isLoading) {
-    return <MenuItem item={{ label: api.plural, icon: Icon, loading: true }} />
-  }
-
   const children: MenuItem[] = Object.values(map ?? {}).map((item: any) => ({
     icon: Icon,
     label: item.metadata.name,
     href: `/${api.group}/${api.version}/${api.plural}/${item.metadata.namespace ?? "default"}/${item.metadata.name}`,
   }));
 
-  return <MenuItem item={{ label: api.plural, icon: Icon, children }} />
+  return <MenuItem item={{ label: api.plural, icon: Icon, children, isLoading, error }} />
 }
 
 export function Sidebar() {
