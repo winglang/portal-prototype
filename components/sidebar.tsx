@@ -19,6 +19,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { useIcon } from "@/hooks/use-icon"
 
 type MenuItem = {
   icon?: React.ElementType
@@ -82,14 +83,16 @@ function MenuItem({ item, level = 0 }: { item: MenuItem; level?: number }) {
     )
   }
 
+  const isActive = pathname === item.href;
+
   return (
     <Link
       href={item.href ?? "/"}
-      className={cn("flex items-center p-1 hover:bg-accent rounded-md", pathname === item.href ? "bg-accent" : "")}
+      className={cn("flex items-center p-1 rounded-md", isActive ? "bg-primary" : "", isActive ? "hover:bg-primary-hover" : "hover:bg-accent")}
     >
       <div className="flex items-center w-full">
-        {item.icon && <item.icon className="h-4 w-4 flex-shrink-0 mr-2" />}
-        <span className="flex-grow truncate">{item.label}</span>
+        {item.icon && <item.icon className={cn("h-4 w-4 flex-shrink-0 mr-2", isActive ? "text-primary-foreground" : "text-foreground")} />}
+        <span className={cn("flex-grow truncate", isActive ? "text-primary-foreground" : "text-foreground")}>{item.label}</span>
         {item.loading && <Loader className="h-4 w-4 animate-spin flex-shrink-0 ml-2" />}
       </div>
     </Link>
@@ -97,15 +100,8 @@ function MenuItem({ item, level = 0 }: { item: MenuItem; level?: number }) {
 }
 
 function SidebarSection({ api }: { api: ApiGroup }) {
-  const [Icon, setIcon] = React.useState<React.ElementType>(Box);
   const { map, error, isLoading } = useK8s(api);
-
-  React.useEffect(() => {
-    const i = icons[api.icon as keyof typeof icons];
-    if (i) {
-      setIcon(React.lazy(i))
-    }
-  }, [api.icon]);
+  const Icon = useIcon(api.icon);
 
   const children: MenuItem[] = Object.values(map ?? {}).map((item: any) => ({
     icon: Icon,

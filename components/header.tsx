@@ -18,18 +18,19 @@ import {
 } from "@/components/ui/popover"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import Image from "next/image"
+import Link from "next/link"
 
 function Logo() {
   return (
-    <div className="flex items-center space-x-2">
+    <Link href="/" className="flex items-center space-x-2">
       <Image src="/wing.svg" alt="Wing Logo" className="h-6 w-6" width={24} height={24} />
-    </div>
+    </Link>
   )
 }
 
 function SearchBar() {
   return (
-    <div className="relative max-w-sm w-full">
+    <div className="relative max-w-xs w-full">
       <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
       <Input placeholder="Search..." className="pl-8" />
     </div>
