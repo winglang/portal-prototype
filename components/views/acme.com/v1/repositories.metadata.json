@@ -1,5 +1,6 @@
 {
-  "group": "acme.com/v1",
+  "group": "acme.com",
+  "version": "v1",
   "plural": "repositories",
   "icon": "book-open"
 }

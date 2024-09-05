@@ -6,6 +6,8 @@ export async function GET(req: Request, { params }: { params: Params }): Promise
   const kc = new k8s.KubeConfig();
   kc.loadFromDefault();
 
+  console.log("here!", params);
+
   const server = kc.getCurrentCluster()?.server;
 
   if (!server) {

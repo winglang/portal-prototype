@@ -1,27 +1,44 @@
 [
   {
-    "group": "acme.com/v1",
-    "plural": "queues",
-    "icon": "list"
+    "group": "core",
+    "plural": "pods",
+    "version": "v1",
+    "icon": "box"
   },
   {
-    "group": "acme.com/v1",
-    "plural": "repositories",
-    "icon": "book-open"
+    "group": "acme.com",
+    "version": "v1",
+    "plural": "workloads",
+    "icon": "folder"
   },
   {
-    "group": "acme.com/v1",
-    "plural": "services",
-    "icon": "network"
+    "group": "acme.com",
+    "plural": "websites",
+    "version": "v1",
+    "icon": "globe"
   },
   {
-    "group": "acme.com/v1",
+    "group": "acme.com",
+    "version": "v1",
     "plural": "topics",
     "icon": "library"
   },
   {
-    "group": "acme.com/v1",
-    "plural": "workloads",
-    "icon": "folder"
+    "group": "acme.com",
+    "version": "v1",
+    "plural": "services",
+    "icon": "network"
+  },
+  {
+    "group": "acme.com",
+    "version": "v1",
+    "plural": "repositories",
+    "icon": "book-open"
+  },
+  {
+    "group": "acme.com",
+    "version": "v1",
+    "plural": "queues",
+    "icon": "list"
   }
 ]

@@ -74,8 +74,9 @@ async function renderResourceUi(resourceType: string) {
 
   console.log(`${resourceType}: Writing metadata`);
   writeFileSync(join(outputdir, `${plural}.metadata.json`), JSON.stringify({
-    group: `${group}/${version}`,
+    group,
     plural,
+    version,
     icon,
   }, null, 2));
 

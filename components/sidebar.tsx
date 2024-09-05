@@ -1,7 +1,8 @@
 'use client'
 
+
 import * as React from "react"
-import { ChevronDown, ChevronRight } from "lucide-react"
+import { ChevronDown, ChevronRight, Loader } from "lucide-react"
 import icons from "lucide-react/dynamicIconImports"
 import { cn } from "@/lib/utils"
 import {
@@ -11,16 +12,19 @@ import {
 } from "@/components/ui/collapsible"
 import apiGroups from "./api-groups.json";
 import Link from "next/link"
+import { useK8s } from "@/hooks/use-k8s"
 
 type MenuItem = {
   icon?: React.ElementType
   label: string
+  loading?: boolean
   href?: string
   children?: MenuItem[]
 }
 
 type ApiGroup = {
   group: string
+  version: string
   icon: string
   plural: string
 }
@@ -28,7 +32,7 @@ type ApiGroup = {
 function MenuItem({ item, level = 0 }: { item: MenuItem; level?: number }) {
   const [isOpen, setIsOpen] = React.useState(false)
 
-  if (item.children) {
+  if (item.children?.length) {
     return (
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-accent rounded-md">
@@ -52,10 +56,15 @@ function MenuItem({ item, level = 0 }: { item: MenuItem; level?: number }) {
   return (
     <Link
       href={item.href ?? "/"}
-      className="flex items-center space-x-2 p-2 hover:bg-accent rounded-md"
+      className="flex items-center space-x-1 p-2 hover:bg-accent rounded-md"
     >
-      {item.icon && <item.icon className="h-4 w-4" />}
-      <span>{item.label}</span>
+      <div className="flex justify-between w-full">
+        <div className="flex items-center space-x-2">
+          {item.icon && <item.icon className="h-4 w-4" />}
+          <span>{item.label}</span>
+        </div>
+        {item.loading && <Loader className="h-4 w-4 animate-spin" />}
+      </div>
     </Link>
   )
 }
@@ -85,43 +94,36 @@ const menuItems: MenuItem[] = [
 ]
 */
 
+function SidebarSection({ api }: { api: ApiGroup }) {
+  const [Icon, setIcon] = React.useState<React.ElementType | undefined>(undefined);
+  const { data, error, isLoading } = useK8s(api);
+
+  React.useEffect(() => setIcon(React.lazy(icons[api.icon as keyof typeof icons])), [api]);
+
+  if (error) {
+    return <div>Error: {error.message}</div>
+  }
+
+  if (isLoading) {
+    return <MenuItem item={{ label: api.plural, loading: true }} />
+  }
+
+  const children: MenuItem[] = data?.items.map((item: any) => ({
+    icon: Icon,
+    label: item.metadata.name,
+    href: `/${api.group}/${api.version}/${api.plural}/${item.metadata.namespace ?? "default"}/${item.metadata.name}`,
+  }));
+
+  return <MenuItem item={{ label: api.plural, icon: Icon, children }} />
+}
+
 export function Sidebar() {
-  const [menuItems, setMenuItems] = React.useState<MenuItem[]>([]);
-
-  React.useEffect(() => {
-    console.log("hello");
-    async function fetchAllResources() {
-      const result: MenuItem[] = [];
-      for (const api of apiGroups as ApiGroup[]) {
-
-        const object =  await fetch(`/api/${api.group}/${api.plural}`);
-        const json = await object.json();
-
-        const Icon = React.lazy(icons[api.icon as keyof typeof icons]);
-
-        result.push({
-          icon: Icon,
-          label: api.plural,
-          children: json.items.map((item: any) => ({
-            label: item.metadata.name,
-            href: `/${api.group}/${api.plural}/${item.metadata.namespace ?? "default"}/${item.metadata.name}`,
-          })),
-        })
-
-      }
-
-      setMenuItems(result);
-    }
-
-    fetchAllResources();
-  }, []);
-
   return (
     <div className="min-w-64 bg-background border-r border-border p-4">
       <h2 className="text-lg font-semibold mb-4">Admin Panel</h2>
       <nav>
-        {menuItems.map((item, index) => (
-          <MenuItem key={index} item={item} />
+        {apiGroups.map((api, index) => (
+          <SidebarSection key={index} api={api} />
         ))}
       </nav>
     </div>

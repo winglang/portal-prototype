@@ -1,6 +1,6 @@
 {
   "group": "acme.com",
+  "plural": "websites",
   "version": "v1",
-  "plural": "services",
-  "icon": "network"
+  "icon": "globe"
 }

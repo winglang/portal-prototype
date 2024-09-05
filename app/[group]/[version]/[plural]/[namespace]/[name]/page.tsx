@@ -1,19 +1,13 @@
 'use client'
 
 import { Params } from "@/app/types";
-import { usePathname } from "next/navigation";
+import { useK8s } from "@/hooks/use-k8s";
 import { useEffect, useState } from "react";
 
 export default function Page({ params }: { params: Params }) {
-  const pathname = usePathname();
-
   const [View, setView] = useState<any | null>(null);
-  const [obj, setObj] = useState<any | null>(null);
-  useEffect(() => {
-    fetch(`/api/${pathname}`).then(res => res.json()).then(data => {
-      setObj(data);
-    });
-  }, [pathname]);
+
+  const { data, error, isLoading } = useK8s({ group: params.group, version: params.version, plural: params.plural });
 
   useEffect(() => {
     import(`@/components/views/${params.group}/${params.version}/${params.plural}.tsx`).then(module => {
@@ -21,6 +15,18 @@ export default function Page({ params }: { params: Params }) {
     });
   }, [params.group, params.version, params.plural]);
 
+  if (error) {
+    return <div>Error: {error.message}</div>
+  }
+
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
+
+  const obj = data?.items?.find((item: any) => item.metadata.name === params.name && item.metadata.namespace === params.namespace);
+  if (!obj) {
+    return <div>Not found</div>
+  }
 
   return (View && obj) ? <View obj={obj}/> : <div>Loading...</div>;
 }
